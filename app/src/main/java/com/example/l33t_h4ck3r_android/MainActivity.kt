@@ -16,17 +16,17 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -54,7 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -137,7 +137,6 @@ fun IdeScreen(viewModel: ProjectViewModel, onChooseFolder: () -> Unit) {
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .imePadding()
         ) {
             if (state.projectFolderUri == null) {
                 ChooseFolderEmptyState(onChooseFolder)
@@ -222,7 +221,22 @@ fun IdeContent(
 ) {
     BoxWithConstraints(Modifier.fillMaxSize()) {
         if (maxWidth < 720.dp) {
-            Column(Modifier.fillMaxSize()) {
+            val scrollState = rememberScrollState()
+            val density = LocalDensity.current
+            val imeBottom = WindowInsets.ime.getBottom(density)
+            val viewportHeight = maxHeight
+
+            LaunchedEffect(imeBottom) {
+                if (imeBottom > 0) {
+                    scrollState.animateScrollTo(scrollState.maxValue)
+                }
+            }
+
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
                 FileExplorer(
                     state = state,
                     onFileClicked = onFileClicked,
@@ -233,7 +247,9 @@ fun IdeContent(
                 EditorPane(
                     state = state,
                     onEditorTextChanged = onEditorTextChanged,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(viewportHeight)
                 )
             }
         } else {
@@ -386,17 +402,13 @@ fun EditorPane(
             if (state.selectedFileUri == null) {
                 Text("Select a text file from the project tree.")
             } else {
-                val verticalScroll = rememberScrollState()
-                BasicTextField(
+                TextField(
                     value = state.editorText,
                     onValueChange = onEditorTextChanged,
-                    textStyle = TextStyle(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontFamily = FontFamily.Monospace
-                    ),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.Monospace),
                     modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(verticalScroll)
+                        .fillMaxSize(),
+                    maxLines = Int.MAX_VALUE
                 )
             }
         }
