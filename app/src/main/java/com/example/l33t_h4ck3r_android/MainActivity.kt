@@ -225,8 +225,9 @@ fun IdeContent(
             val density = LocalDensity.current
             val imeBottom = WindowInsets.ime.getBottom(density)
             val viewportHeight = maxHeight
+            val keyboardScrollSlack = if (imeBottom > 0) viewportHeight * 0.45f else 0.dp
 
-            LaunchedEffect(imeBottom) {
+            LaunchedEffect(imeBottom, scrollState.maxValue) {
                 if (imeBottom > 0) {
                     scrollState.animateScrollTo(scrollState.maxValue)
                 }
@@ -251,6 +252,7 @@ fun IdeContent(
                         .fillMaxWidth()
                         .height(viewportHeight)
                 )
+                Spacer(Modifier.height(keyboardScrollSlack))
             }
         } else {
             Row(Modifier.fillMaxSize()) {
