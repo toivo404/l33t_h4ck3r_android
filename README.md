@@ -1,6 +1,6 @@
-# L33t_h4ck3r Android
+# L33t_h4ck3r_Android
 
-L33t_h4ck3r is a small native Android web project editor. It is built for editing lightweight HTML, CSS, JavaScript, JSON, Markdown, XML, CSV, and plain text files directly on-device.
+L33t_h4ck3r_Android is a small native Android web project editor. It is built for editing lightweight HTML, CSS, JavaScript, JSON, Markdown, XML, CSV, and plain text files directly on-device.
 
 The app uses Android Storage Access Framework, so projects are opened through the system folder picker instead of broad storage permissions.
 
